@@ -2,9 +2,9 @@
 # Next.js Frontend + Python FastAPI Serverless Backend
 
 [build]
-  command = "cd frontend && npm install && npm run build"
-  publish = "frontend/.next"
-  functions = "netlify/functions"
+  base = "frontend"
+  command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   PYTHON_VERSION = "3.11"
