@@ -2,10 +2,20 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "sqlite:///./spam_shield.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    if os.getenv("NETLIFY") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        DATABASE_URL = "sqlite:////tmp/spam_shield.db"
+    else:
+        # Default local sqlite file in the backend directory
+        db_path = os.path.join(os.path.dirname(__file__), "spam_shield.db")
+        DATABASE_URL = f"sqlite:///{db_path}"
+
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
 engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL,
+    connect_args=connect_args
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

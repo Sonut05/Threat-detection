@@ -1,0 +1,30 @@
+# Netlify Full-Stack Configuration
+# Next.js Frontend + Python FastAPI Serverless Backend
+
+[build]
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/.next"
+  functions = "netlify/functions"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+  NODE_VERSION = "20"
+
+[functions]
+  directory = "netlify/functions"
+  included_files = ["backend/**"]
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Proxy FastAPI message and dashboard endpoints to serverless Python function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/api/:splat"
+  status = 200
+
+# Proxy FastAPI authentication endpoints to serverless Python function
+[[redirects]]
+  from = "/auth/*"
+  to = "/.netlify/functions/api/auth/:splat"
+  status = 200
