@@ -10,8 +10,13 @@ if not DATABASE_URL:
         # Default local sqlite file in the backend directory
         db_path = os.path.join(os.path.dirname(__file__), "spam_shield.db")
         DATABASE_URL = f"sqlite:///{db_path}"
+else:
+    # Normalize postgres:// to postgresql:// for SQLAlchemy >= 1.4 (common on Render / Supabase)
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
 
 engine = create_engine(
     DATABASE_URL,

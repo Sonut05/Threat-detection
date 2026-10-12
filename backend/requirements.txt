@@ -4,4 +4,6 @@ sqlalchemy
 pydantic
 scikit-learn
 mangum
+psycopg2-binary
+
 
