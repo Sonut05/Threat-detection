@@ -1,7 +1,6 @@
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./Providers";
-import Background3D from "../components/Background3D";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const pjs = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "800"], display: "block", variable: "--font-pjs" });
@@ -35,7 +34,6 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${inter.variable} ${pjs.variable} antialiased`}>
-        <Background3D />
         <Providers>
           {children}
         </Providers>

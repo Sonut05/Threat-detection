@@ -13,11 +13,11 @@
 .hp-hero *,.hp-hero *::before,.hp-hero *::after{box-sizing:border-box}
 html.hp-lock,html.hp-lock body{height:100%;margin:0;padding:0;overflow:hidden;background:#000}
 
-.hp-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:max(100vw, calc(100dvh * 1.6));height:max(62.5vw, 100dvh);background-color:#000}
-.hp-bg-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.hp-bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) translateZ(0);
+  width:max(100vw, calc(100dvh * 1.6));height:max(62.5vw, 100dvh);background-color:#000;contain:paint}
+.hp-bg-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;transform:translateZ(0)}
 .hp-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:51% 8%;
-  display:block;background-color:transparent;pointer-events:none;opacity:0;transition:opacity .9s linear}
+  display:block;background-color:transparent;pointer-events:none;opacity:0;transition:opacity .9s linear;transform:translateZ(0)}
 .hp-bg-video.is-active,.hp-bg-video.hp-is-active{opacity:1}
 .hp-bg.hp-no-video .hp-bg-video{display:none}
 

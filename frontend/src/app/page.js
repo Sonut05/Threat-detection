@@ -24,7 +24,6 @@ export default function Home() {
 
   const heroRef = useRef(null);
   const videoA = useRef(null);
-  const videoB = useRef(null);
   const bgRef = useRef(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,40 +90,29 @@ export default function Home() {
     return () => { document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey); };
   }, [menuOpen]);
 
-  // looping background video with cross-fade at the loop point
+  // Native smooth hardware-accelerated looping video with fallback
   useEffect(() => {
-    const A = videoA.current, B = videoB.current;
-    if (!A || !B) return;
-    const play = (v) => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+    const v = videoA.current;
+    if (!v) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      A.removeAttribute('autoplay');
-      A.pause(); B.pause();
-      try { A.currentTime = 0; } catch (e) {}
+      v.removeAttribute('autoplay');
+      v.pause();
       return;
     }
-    // if the clip can't play (blocked / offline), hide it so the built-in globe shows
     const bg = bgRef.current;
-    const failT = setTimeout(() => { if (bg && (A.paused || A.readyState < 3)) bg.classList.add('hp-no-video'); }, 3500);
-    const onErr = () => bg && bg.classList.add('hp-no-video');
-    const onOk = () => bg && bg.classList.remove('hp-no-video');
-    A.addEventListener('error', onErr, true);
-    A.addEventListener('playing', onOk);
-    const FADE = 0.9;
-    let cur = A, nxt = B, swapping = false, timer;
-    play(A);
-    const tick = () => {
-      if (swapping || !cur.duration) return;
-      if (cur.duration - cur.currentTime > FADE) return;
-      swapping = true;
-      const out = cur;
-      nxt.currentTime = 0; play(nxt);
-      nxt.classList.add('hp-is-active'); out.classList.remove('hp-is-active');
-      cur = nxt; nxt = out;
-      timer = setTimeout(() => { out.pause(); out.currentTime = 0; swapping = false; }, FADE * 1000 + 100);
+    const play = () => {
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {});
     };
-    A.addEventListener('timeupdate', tick);
-    B.addEventListener('timeupdate', tick);
-    return () => { clearTimeout(timer); clearTimeout(failT); A.removeEventListener('error', onErr, true); A.removeEventListener('playing', onOk); A.removeEventListener('timeupdate', tick); B.removeEventListener('timeupdate', tick); };
+    const onErr = () => bg && bg.classList.add('hp-no-video');
+    const onPlaying = () => bg && bg.classList.remove('hp-no-video');
+    v.addEventListener('error', onErr, true);
+    v.addEventListener('playing', onPlaying);
+    play();
+    return () => {
+      v.removeEventListener('error', onErr, true);
+      v.removeEventListener('playing', onPlaying);
+    };
   }, []);
 
   if (user) {
@@ -136,9 +124,6 @@ export default function Home() {
       <div ref={bgRef} className="hp-bg" role="img" aria-label="Stylised globe of Earth rendered as a purple dot matrix against a starfield, slowly rotating">
         <GlobeCanvas className="hp-bg-canvas" />
         <video ref={videoA} className="hp-bg-video hp-is-active" autoPlay muted loop playsInline preload="auto" disablePictureInPicture aria-hidden="true" poster={POSTER}>
-          <source src={VIDEO} type="video/mp4" />
-        </video>
-        <video ref={videoB} className="hp-bg-video" muted loop playsInline preload="auto" disablePictureInPicture aria-hidden="true" poster={POSTER}>
           <source src={VIDEO} type="video/mp4" />
         </video>
       </div>

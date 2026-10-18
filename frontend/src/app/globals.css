@@ -136,6 +136,8 @@
     left: -100px;
     animation: float 10s ease-in-out infinite alternate;
     opacity: 0.15;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
   }
   
   .glow-orb-2 {
@@ -147,6 +149,8 @@
     right: -100px;
     animation: float 12s ease-in-out infinite alternate-reverse;
     opacity: 0.1;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
   }
   .light .glow-orb-1, .light .glow-orb-2 {
     opacity: 0.05;
