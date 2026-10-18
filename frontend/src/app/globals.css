@@ -6,6 +6,8 @@
 
 @layer base {
   :root {
+    --background: #080312;
+    --foreground: #ffffff;
     --primary: #8a2be2; /* BlueViolet */
     --primary-hover: #9b4bed;
     --accent: #20b2aa; /* LightSeaGreen */

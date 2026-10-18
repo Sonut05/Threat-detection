@@ -49,7 +49,7 @@ export default function AdminPage() {
         method: 'POST'
       });
       if (res.ok) {
-        fetchData(); // Refresh list
+        fetchData();
       }
     } catch (e) {
       console.error(e);
@@ -58,202 +58,272 @@ export default function AdminPage() {
 
   const deleteUserCompletely = async (userId) => {
     if (!confirm(`Are you sure you want to permanently delete user #${userId} and ALL their scan records? This action cannot be undone.`)) return;
-    
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
-        fetchData(); // Refresh list
+        fetchData();
       }
     } catch (e) {
       console.error("Failed to delete user", e);
     }
   };
 
-  if (!stats || !user || !dashStats) return <div className="animate-pulse flex gap-4 h-full"><div className="flex-1 bg-white/5 rounded-2xl"></div></div>;
+  if (!stats || !user || !dashStats) {
+    return (
+      <div style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>
+        <div className="db-spin" style={{ width: 28, height: 28, borderColor: 'rgba(255,255,255,0.15)', borderTopColor: 'var(--acc)' }} />
+      </div>
+    );
+  }
 
-  const filteredActivities = dashStats.user_activities.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredActivities = dashStats.user_activities.filter((u) =>
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.id.toString().includes(searchTerm)
   );
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <header className="flex justify-between items-center mb-8">
+    <>
+      <header className="db-header">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Console</h1>
-          <p className="text-gray-400 mt-1">Platform-wide statistics and system monitoring.</p>
+          <p className="db-eyebrow">Administration</p>
+          <h1 className="db-title">Admin console</h1>
+          <p className="db-subtitle">Platform-wide statistics and system monitoring.</p>
         </div>
-        <div className="bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-lg text-sm font-semibold shadow-[0_0_15px_rgba(138,43,226,0.2)]">
-          System Status: Online
+        <div className="db-badge-online">
+          <i />
+          <span>System status: Online</span>
         </div>
       </header>
 
-      {/* Global Stats Matrix */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="glass-panel p-6 border-t-4 border-t-blue-500">
-          <p className="text-sm text-gray-400 font-medium mb-1">Total Users</p>
-          <p className="text-4xl font-bold">{stats.total_users}</p>
+      {/* 4-column Stat Strip */}
+      <div className="db-stat-strip">
+        <div className="db-stat-cell">
+          <span className="db-stat-label">Total users</span>
+          <p className="db-stat-val">{stats.total_users}</p>
         </div>
-        <div className="glass-panel p-6 border-t-4 border-t-purple-500">
-          <p className="text-sm text-gray-400 font-medium mb-1">Platform Messages</p>
-          <p className="text-4xl font-bold">{stats.total_messages}</p>
+        <div className="db-stat-cell">
+          <span className="db-stat-label">Platform messages</span>
+          <p className="db-stat-val">{stats.total_messages}</p>
         </div>
-        <div className="glass-panel p-6 border-t-4 border-t-danger">
-          <p className="text-sm text-gray-400 font-medium mb-1">Global Spam Detected</p>
-          <p className="text-4xl font-bold text-danger">{stats.spam_detected}</p>
+        <div className="db-stat-cell">
+          <span className="db-stat-label">Global spam detected</span>
+          <p className="db-stat-val spam">{stats.spam_detected}</p>
         </div>
-        <div className="glass-panel p-6 border-t-4 border-t-success">
-          <p className="text-sm text-gray-400 font-medium mb-1">System Accuracy</p>
-          <p className="text-4xl font-bold text-success">{stats.system_accuracy}%</p>
+        <div className="db-stat-cell">
+          <span className="db-stat-label">System accuracy</span>
+          <p className="db-stat-val safe">{stats.system_accuracy}%</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      {/* Grid: Global Logs & User Management */}
+      <div className="db-grid" style={{ marginBottom: '32px' }}>
         {/* Recent Detection Logs */}
-        <div className="glass-panel p-6 flex flex-col h-[500px]">
-          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-            Live Global Logs
-          </h2>
-          <div className="overflow-y-auto flex-1 pr-2 space-y-3">
-            {stats.recent_logs.map(log => (
-              <div key={log.id} className="flex items-center justify-between p-3 rounded-lg border transition-colors duration-300" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}>
-                <div className="flex items-center gap-4">
-                  <div className={`w-2 h-2 rounded-full shadow-lg ${log.prediction === 'Spam' ? 'bg-danger shadow-danger/50' : 'bg-success shadow-success/50'}`} />
-                  <div>
-                    <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Detection ID #{log.id} <span className="text-xs text-gray-500 ml-2 uppercase">[{log.msg_type}]</span></p>
-                    <p className="text-xs text-gray-500">User ID: {log.user_id}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className={`text-xs font-bold px-2 py-1 rounded border ${log.prediction === 'Spam' ? 'bg-danger/10 border-danger/20 text-danger' : 'bg-success/10 border-success/20 text-success'}`}>
-                    {log.prediction}
-                  </span>
-                  <p className="text-[10px] text-gray-500 mt-1">{new Date(log.timestamp).toLocaleTimeString()}</p>
-                </div>
-              </div>
-            ))}
-            {stats.recent_logs.length === 0 && (
-              <p className="text-sm text-gray-500 text-center py-8">No logs available.</p>
-            )}
+        <section className="db-card" style={{ display: 'flex', flexDirection: 'column', height: '480px' }}>
+          <div className="db-card-header">
+            <h2 className="db-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--acc)' }}>
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+              Live global logs
+            </h2>
           </div>
-        </div>
 
-        {/* User Management Real */}
-        <div className="glass-panel p-6 flex flex-col h-[500px]">
-          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Active Users
-          </h2>
-          <div className="overflow-y-auto flex-1 pr-2 space-y-3">
-            {users.map(u => (
-              <div key={u.id} className={`flex items-center justify-between p-3 rounded-lg border transition-all duration-300 ${!u.is_active ? 'opacity-70 grayscale-[0.5]' : ''}`} style={{ backgroundColor: u.is_active ? 'var(--input-bg)' : 'rgba(255, 75, 75, 0.05)', borderColor: u.is_active ? 'var(--glass-border)' : 'var(--danger)' }}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-sm ${u.is_active ? 'bg-gradient-to-br from-primary to-accent text-white' : 'bg-gray-400 text-gray-700'}`}>
-                    {u.name.charAt(0).toUpperCase()}
+          <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
+            <div className="db-list">
+              {stats.recent_logs && stats.recent_logs.length > 0 ? (
+                stats.recent_logs.map((log) => (
+                  <div key={log.id} className="db-row" style={{ padding: '12px 0' }}>
+                    <div className="db-row-top">
+                      <div className="db-row-meta">
+                        <span className={`db-chip ${log.prediction === 'Spam' ? 'spam' : 'safe'}`}>
+                          {log.prediction}
+                        </span>
+                        <span className="db-chip type">{log.msg_type}</span>
+                        <span style={{ fontSize: '13px', color: '#fff', fontWeight: 500 }}>
+                          #{log.id}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '12px', color: 'var(--dim)' }}>
+                        {new Date(log.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div className="db-row-bottom">
+                      <span>User ID: {log.user_id}</span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
-                      {u.name} 
-                      {u.role === 'admin' && <span className="text-[10px] px-1 py-0.5 rounded bg-primary text-white font-bold">ADMIN</span>}
-                      {!u.is_active && <span className="text-[10px] px-1 py-0.5 rounded bg-danger text-white font-bold">INACTIVE</span>}
-                    </p>
-                    <p className="text-xs text-gray-500">ID: {u.id} | {u.email}</p>
+                ))
+              ) : (
+                <p className="db-empty">No logs available.</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Active Users */}
+        <section className="db-card" style={{ display: 'flex', flexDirection: 'column', height: '480px' }}>
+          <div className="db-card-header">
+            <h2 className="db-card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--acc)' }}>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Registered users
+            </h2>
+            <span style={{ fontSize: '12.5px', color: 'var(--dim)' }}>
+              Total: {users.length}
+            </span>
+          </div>
+
+          <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
+            <div className="db-list">
+              {users.map((u) => (
+                <div key={u.id} className="db-row" style={{ padding: '12px 0', opacity: u.is_active ? 1 : 0.65 }}>
+                  <div className="db-row-top">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                      <div className="db-avatar" style={{ width: 28, height: 28, fontSize: 12 }}>
+                        {u.name ? u.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ margin: 0, fontSize: '13.5px', fontWeight: 500, color: '#fff' }}>
+                          {u.name}
+                        </p>
+                        <p style={{ margin: 0, fontSize: '11.5px', color: 'var(--dim)' }}>
+                          ID: {u.id} · {u.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {u.role === 'admin' ? (
+                        <span className="db-chip" style={{ background: 'rgba(167,139,250,0.15)', color: 'var(--acc)', border: '1px solid rgba(167,139,250,0.3)' }}>
+                          ADMIN
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => toggleUserStatus(u.id, u.is_active)}
+                          className="db-btn-ghost db-btn-sm"
+                          style={{
+                            height: '28px',
+                            padding: '0 10px',
+                            fontSize: '11.5px',
+                            borderColor: u.is_active ? 'rgba(255, 122, 122, 0.3)' : 'rgba(110, 231, 168, 0.3)',
+                            color: u.is_active ? 'var(--bad)' : 'var(--ok)'
+                          }}
+                          type="button"
+                        >
+                          {u.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-                {u.role !== 'admin' && (
-                  <button 
-                    onClick={() => toggleUserStatus(u.id, u.is_active)}
-                    className={`text-xs px-3 py-1 rounded border font-bold transition-all ${u.is_active ? 'text-danger border-danger/50 hover:bg-danger hover:text-white' : 'text-success border-success/50 hover:bg-success hover:text-white'}`}
-                  >
-                    {u.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-
+        </section>
       </div>
 
-      {/* User Activity Dashboard Form */}
-      <div className="glass-panel p-6 overflow-x-auto mt-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            User Activity & Scan Counts
-          </h2>
-          <div className="relative w-full md:w-64">
-            <input 
-              type="text" 
-              placeholder="Search users..." 
+      {/* User Activity & Scan Counts Table */}
+      <section className="db-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '22px 28px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h2 className="db-card-title" style={{ margin: 0 }}>
+              User scan activity
+            </h2>
+            <p className="db-subtitle" style={{ margin: '4px 0 0' }}>
+              Individual scan volume and account status across all users.
+            </p>
+          </div>
+
+          <div className="db-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border text-sm transition-colors focus:outline-none"
-              style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--glass-border)', color: 'var(--foreground)' }}
             />
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-2.5 text-gray-500"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </div>
         </div>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b" style={{ borderColor: 'var(--glass-border)' }}>
-              <th className="py-3 px-4 font-semibold text-gray-500 text-sm">USER ID</th>
-              <th className="py-3 px-4 font-semibold text-gray-500 text-sm">NAME / EMAIL</th>
-              <th className="py-3 px-4 font-semibold text-gray-500 text-sm">ROLE</th>
-              <th className="py-3 px-4 font-semibold text-gray-500 text-sm">TOTAL SMS SCANS</th>
-              <th className="py-3 px-4 font-semibold text-gray-500 text-sm">TOTAL EMAIL SCANS</th>
-              <th className="py-3 px-4 font-semibold text-gray-500 text-sm">STATUS</th>
-              <th className="py-3 px-4 font-semibold text-gray-500 text-sm text-right">ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredActivities.map(u => (
-              <tr key={u.id} className="border-b transition-colors hover:bg-black/5 dark:hover:bg-white/5" style={{ borderColor: 'var(--glass-border)' }}>
-                <td className="py-3 px-4 font-medium" style={{ color: 'var(--foreground)' }}>#{u.id}</td>
-                <td className="py-3 px-4">
-                  <p className="font-semibold" style={{ color: 'var(--foreground)' }}>{u.name}</p>
-                  <p className="text-xs text-gray-500">{u.email}</p>
-                </td>
-                <td className="py-3 px-4">
-                  <span className={`text-[10px] px-2 py-1 rounded font-bold ${u.role === 'admin' ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-gray-500/20 text-gray-500 border border-gray-500/30'}`}>
-                    {u.role.toUpperCase()}
-                  </span>
-                </td>
-                <td className="py-3 px-4 font-semibold text-accent">{u.total_sms}</td>
-                <td className="py-3 px-4 font-semibold text-primary">{u.total_emails}</td>
-                <td className="py-3 px-4">
-                  <span className={`text-xs px-2 py-1 rounded font-bold ${u.is_active ? 'text-success bg-success/10' : 'text-danger bg-danger/10'}`}>
-                    {u.is_active ? 'Active' : 'Deactivated'}
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-right">
-                  {u.role !== 'admin' && (
-                    <button 
-                      onClick={() => deleteUserCompletely(u.id)}
-                      className="text-danger hover:bg-danger/10 p-2 rounded transition-colors"
-                      title="Permanently Delete User"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {filteredActivities.length === 0 && (
-              <tr>
-                <td colSpan="7" className="py-8 text-center text-gray-500">
-                  {searchTerm ? 'No users match your robust search query.' : 'No user activity data available.'}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
 
-    </div>
+        <div className="db-table-wrap">
+          <table className="db-table">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Name / Email</th>
+                <th>Role</th>
+                <th>Total SMS</th>
+                <th>Total Email</th>
+                <th>Status</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredActivities.length > 0 ? (
+                filteredActivities.map((u) => (
+                  <tr key={u.id}>
+                    <td style={{ color: 'var(--dim)', fontVariantNumeric: 'tabular-nums' }}>
+                      #{u.id}
+                    </td>
+                    <td>
+                      <p style={{ margin: 0, fontWeight: 500, color: '#fff' }}>{u.name}</p>
+                      <p style={{ margin: 0, fontSize: '12px', color: 'var(--dim)' }}>{u.email}</p>
+                    </td>
+                    <td>
+                      <span className="db-chip" style={{ background: u.role === 'admin' ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.04)', color: u.role === 'admin' ? 'var(--acc)' : 'var(--mute)' }}>
+                        {u.role.toUpperCase()}
+                      </span>
+                    </td>
+                    <td style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#fff' }}>
+                      {u.total_sms}
+                    </td>
+                    <td style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#fff' }}>
+                      {u.total_emails}
+                    </td>
+                    <td>
+                      <span className={`db-chip ${u.is_active ? 'safe' : 'spam'}`}>
+                        {u.is_active ? 'Active' : 'Deactivated'}
+                      </span>
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {u.role !== 'admin' && (
+                        <button
+                          onClick={() => deleteUserCompletely(u.id)}
+                          className="db-icon-btn"
+                          title="Permanently Delete User"
+                          type="button"
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                          </svg>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="db-empty">
+                    {searchTerm ? 'No users match your search.' : 'No user activity data available.'}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </>
   );
 }

@@ -41,92 +41,109 @@ export default function MessagesPage() {
     fetchMessages();
   }, [user]);
 
-  if (loading) return <div className="animate-pulse flex gap-4 h-full"><div className="flex-1 bg-white/5 rounded-2xl"></div></div>;
+  if (loading) {
+    return (
+      <div style={{ display: 'grid', placeItems: 'center', minHeight: '60vh' }}>
+        <div className="db-spin" style={{ width: 28, height: 28, borderColor: 'rgba(255,255,255,0.15)', borderTopColor: 'var(--acc)' }} />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <header className="flex justify-between items-center mb-8">
+    <>
+      <header className="db-header">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Message History</h1>
-          <p className="text-gray-400 mt-1">Review all your analyzed messages and their threat levels.</p>
+          <p className="db-eyebrow">History</p>
+          <h1 className="db-title">Message history</h1>
+          <p className="db-subtitle">Review all your analyzed messages and their threat levels.</p>
+        </div>
+        <div className="db-badge-online" style={{ color: 'var(--mute)', borderColor: 'var(--line)', background: 'rgba(255,255,255,0.03)' }}>
+          Total messages: {messages.length}
         </div>
       </header>
 
-      <div className="glass-panel p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">All Analyzed Messages</h2>
-          <div className="flex gap-2">
-            <span className="px-3 py-1 rounded-lg text-sm text-gray-400" style={{ backgroundColor: 'var(--nav-item-hover)' }}>Total: {messages.length}</span>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+      <section className="db-card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="db-table-wrap">
+          <table className="db-table">
             <thead>
-              <tr className="border-b text-gray-400 text-sm" style={{ borderColor: 'var(--glass-border)' }}>
-                <th className="py-3 px-4 font-medium">Type</th>
-                <th className="py-3 px-4 font-medium">Content Preview</th>
-                <th className="py-3 px-4 font-medium">Prediction</th>
-                <th className="py-3 px-4 font-medium">Confidence</th>
-                <th className="py-3 px-4 font-medium">Date Analyzed</th>
-                <th className="py-3 px-4 font-medium text-right">Actions</th>
+              <tr>
+                <th>Type</th>
+                <th>Content preview</th>
+                <th>Verdict</th>
+                <th>Confidence</th>
+                <th>Date analyzed</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {messages.length > 0 ? (
                 messages.map((msg) => (
-                  <tr key={msg.id} className="border-b transition-colors" style={{ borderColor: 'var(--glass-border)' }}>
-                    <td className="py-4 px-4">
-                      <span className="text-xs font-medium uppercase text-gray-400 px-2 py-1 rounded" style={{ backgroundColor: 'var(--nav-item-hover)' }}>
-                        {msg.msg_type}
-                      </span>
+                  <tr key={msg.id}>
+                    <td>
+                      <span className="db-chip type">{msg.msg_type}</span>
                     </td>
-                    <td className="py-4 px-4 max-w-md">
-                      <p className="text-sm truncate font-medium" title={msg.content} style={{ color: 'var(--foreground)' }}>
+                    <td style={{ maxWidth: '380px' }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: '13.5px',
+                          color: '#fff',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                        title={msg.content}
+                      >
                         {msg.content}
                       </p>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className={`text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider ${msg.prediction === 'Spam' ? 'bg-danger/20 text-danger border border-danger/20' : 'bg-success/20 text-success border border-success/20'}`}>
+                    <td>
+                      <span className={`db-chip ${msg.prediction === 'Spam' ? 'spam' : 'safe'}`}>
                         {msg.prediction}
                       </span>
                     </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--nav-item-hover)' }}>
-                          <div 
-                            className={`h-full ${msg.prediction === 'Spam' ? 'bg-danger' : 'bg-success'}`} 
-                            style={{ width: `${(msg.confidence * 100).toFixed(0)}%` }}
+                    <td>
+                      <div className="db-conf-bar">
+                        <div className="db-conf-track">
+                          <div
+                            className={`db-conf-fill ${msg.prediction === 'Spam' ? 'spam' : 'safe'}`}
+                            style={{ width: `${Math.round((msg.confidence || 0) * 100)}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500">{(msg.confidence * 100).toFixed(0)}%</span>
+                        <span style={{ fontSize: '12px', color: 'var(--dim)', fontVariantNumeric: 'tabular-nums' }}>
+                          {Math.round((msg.confidence || 0) * 100)}%
+                        </span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-500">
+                    <td style={{ fontSize: '12.5px', color: 'var(--dim)', whiteSpace: 'nowrap' }}>
                       {new Date(msg.timestamp).toLocaleString()}
                     </td>
-                    <td className="py-4 px-4 text-right">
-                      <button 
+                    <td style={{ textAlign: 'right' }}>
+                      <button
                         onClick={() => handleDelete(msg.id)}
-                        className="p-2 rounded-lg hover:bg-danger/10 text-gray-500 hover:text-danger transition-colors"
+                        className="db-icon-btn"
                         title="Delete Message"
+                        type="button"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
                       </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="py-8 text-center text-sm text-gray-500">
-                    No messages found in your history.
+                  <td colSpan={6} className="db-empty">
+                    No scans yet.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

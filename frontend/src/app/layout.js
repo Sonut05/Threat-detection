@@ -1,9 +1,10 @@
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./Providers";
 import Background3D from "../components/Background3D";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const pjs = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "800"], display: "block", variable: "--font-pjs" });
 
 export const metadata = {
   title: "Spam Shield | AI Threat Detection",
@@ -12,7 +13,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -20,12 +21,12 @@ export default function RootLayout({ children }) {
               (function() {
                 try {
                   var savedTheme = localStorage.getItem('theme');
-                  if (savedTheme) {
-                    document.documentElement.className = savedTheme;
-                  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.className = 'dark';
+                  if (savedTheme === 'light') {
+                    document.documentElement.classList.add('light');
+                    document.documentElement.classList.remove('dark');
                   } else {
-                    document.documentElement.className = 'dark'; // Default theme
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
                   }
                 } catch (e) {}
               })();
@@ -33,7 +34,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} ${pjs.variable} antialiased`}>
         <Background3D />
         <Providers>
           {children}

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../../components/Sidebar';
 import { useEffect } from 'react';
+import '../_dashboard/dashboard.css';
 
 export default function AdminLayout({ children }) {
   const { user, loading } = useAuth();
@@ -21,20 +22,22 @@ export default function AdminLayout({ children }) {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="db-root" style={{ display: 'grid', placeItems: 'center', minHeight: '100dvh' }}>
+        <div className="db-spin" style={{ width: 32, height: 32, borderColor: 'rgba(255,255,255,0.15)', borderTopColor: 'var(--acc)' }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex text-white relative z-10 overflow-hidden">
-      <Sidebar />
-      <main className="flex-1 h-screen overflow-y-auto bg-black/20">
-        <div className="max-w-7xl mx-auto p-8">
-          {children}
-        </div>
-      </main>
+    <div className="db-root">
+      <div className="db-shell">
+        <Sidebar />
+        <main className="db-main">
+          <div className="db-container">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

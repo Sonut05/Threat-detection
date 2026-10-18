@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spam Shield — Threat-proof messaging</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;800&display=block">
+<style>
+@supports not (height: 100dvh){:root{--u:min(calc(100vw / 1280),calc(100vh / 760))}.hero{height:100vh}.bg{width:max(100vw,calc(100vh * 1.6));height:max(62.5vw,100vh)}}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;background:#000}
+body{font-family:'PJS','Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:geometricPrecision;color:var(--ink)}
+/* Spam Shield hero — all selectors are prefixed hp- so nothing leaks into dashboard/admin */
+.hero{position:relative;width:100vw;height:100dvh;overflow:hidden;background:#000}
+:root{
+  --u: min(calc(100vw / 1280), calc(100dvh / 760));
+  --ink:#ffffff; --ink-muted:#ededed; --panel:#181818; --white-btn:#fdfdfd; --btn-ink:#050505;
+  --glass-fill:rgba(0,0,0,.78); --glass-line:rgba(255,255,255,.09);
+  --dx:8.5; --dy:13.1;
+  --e-reveal:cubic-bezier(.16,1,.3,1); --e-soft:cubic-bezier(.25,.8,.3,1);
+  
+  
+  
+  }
+*{box-sizing:border-box}
+html.lock,html.lock body{height:100%;margin:0;padding:0;overflow:hidden;background:#000}
+
+.bg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:max(100vw, calc(100dvh * 1.6));height:max(62.5vw, 100dvh);background-color:#000}
+.bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:51% 8%;
+  display:block;background-color:transparent;pointer-events:none;opacity:0;transition:opacity .9s linear}
+.bg-video.is-active{opacity:1}
+
+.nav{position:absolute;top:0;left:0;right:0;height:calc(67 * var(--u));display:flex;align-items:center;
+  padding-left:calc(24.5 * var(--u));padding-right:calc(50.7 * var(--u));z-index:3}
+.logo{font-weight:800;font-size:calc(26 * var(--u));letter-spacing:calc(0.45 * var(--u));
+  transform:translateY(calc(-2.4 * var(--u)));line-height:1;color:var(--ink);text-decoration:none;white-space:nowrap}
+.nav-links{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) translateX(calc(-23 * var(--u)));
+  display:flex;align-items:center;gap:calc(24.3 * var(--u));white-space:nowrap}
+.nav-links a{color:var(--ink-muted);text-decoration:none;font-size:calc(11.5 * var(--u));font-weight:500;
+  letter-spacing:calc(-0.15 * var(--u));line-height:1;transition:color .18s ease}
+.nav-links a:hover{color:#fff}
+.nav-actions{margin-left:auto;display:flex;align-items:center;gap:calc(6.8 * var(--u))}
+.btn{display:inline-flex;align-items:center;justify-content:center;font-family:inherit;text-decoration:none;
+  white-space:nowrap;border:0;cursor:pointer}
+.btn-login{height:calc(28 * var(--u));padding:0 calc(12.9 * var(--u));border-radius:calc(14 * var(--u));
+  background:var(--panel);color:#e8e8e8;font-size:calc(11.5 * var(--u));font-weight:500;
+  letter-spacing:calc(-0.15 * var(--u));transition:background .18s ease,color .18s ease}
+.btn-login:hover{background:#232323;color:#fff}
+.btn-nav-start{height:calc(28 * var(--u));padding-left:calc(13.5 * var(--u));padding-right:calc(14.5 * var(--u));
+  border-radius:calc(14 * var(--u));background:var(--white-btn);color:var(--btn-ink);
+  font-size:calc(11.1 * var(--u));font-weight:500;letter-spacing:0;gap:calc(7 * var(--u));transition:background .18s ease}
+.btn-nav-start:hover{background:#fff}
+.btn-nav-start .arw{width:calc(11.5 * var(--u));height:calc(9.6 * var(--u))}
+.arw{flex:0 0 auto;display:block}
+.burger{display:none;margin-left:auto;width:calc(40 * var(--u));height:calc(28 * var(--u));align-items:center;
+  justify-content:center;background:var(--panel);border-radius:calc(14 * var(--u));border:0;cursor:pointer;padding:0}
+.burger span{display:block;width:16px;height:1.5px;background:#ededed;border-radius:2px;position:relative}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:16px;height:1.5px;background:#ededed;border-radius:2px}
+.burger span::before{top:-5px}.burger span::after{top:5px}
+
+.hero-inner{position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%) translate(calc(var(--dx) * var(--u)), calc(var(--dy) * var(--u)));
+  width:max-content;text-align:center;z-index:2}
+.ln{display:block}.ln-i{display:block;white-space:nowrap}
+h1{margin:0;font-weight:500;font-size:calc(89 * var(--u));line-height:calc(90 * var(--u));
+  letter-spacing:calc(-1 * var(--u));color:var(--ink)}
+.sub{margin:calc(16.1 * var(--u)) 0 0;font-weight:300;font-size:calc(17.4 * var(--u));line-height:calc(27 * var(--u));
+  letter-spacing:calc(-0.30 * var(--u));color:#f6f6f6}
+.ctas{margin-top:calc(21.8 * var(--u));display:flex;align-items:center;justify-content:center;
+  transform:translateX(calc(-0.75 * var(--u)));gap:calc(7 * var(--u))}
+.btn-lg{height:calc(39 * var(--u));border-radius:calc(19.5 * var(--u));font-size:calc(13.3 * var(--u));
+  font-weight:500;letter-spacing:calc(-0.3 * var(--u));gap:calc(9 * var(--u))}
+.btn-primary{background:var(--white-btn);color:var(--btn-ink);padding-left:calc(18.2 * var(--u));
+  padding-right:calc(19.2 * var(--u));transition:background .18s ease,transform .18s ease}
+.btn-primary:hover{background:#fff}
+.btn-ghost{background:var(--glass-fill);color:#d9d9d9;padding:0 calc(17.4 * var(--u));border:1px solid var(--glass-line);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);transition:background .18s ease,border-color .18s ease}
+.btn-ghost:hover{background:rgba(0,0,0,.66);border-color:rgba(255,255,255,.16)}
+.btn-lg .arw{width:calc(13 * var(--u));height:calc(10.8 * var(--u))}
+a:focus-visible,button:focus-visible{outline:2px solid #a78bfa;outline-offset:3px;border-radius:99px}
+
+.menu{display:none}
+@keyframes menuIn{from{opacity:0;transform:translateY(-6px) scale(.985)}to{opacity:1;transform:none}}
+
+/* ---------- entrance (runs once, class is removed afterwards) ---------- */
+html.anim .ln{overflow:hidden;padding-top:.26em;margin-top:-.26em}
+html.anim .ln-i{transform:translateY(100%)}
+html.anim .logo,html.anim .nav-links a,html.anim .nav-actions .btn,
+html.anim .burger,html.anim .sub,html.anim .ctas .btn{opacity:0}
+.ln-i,.logo,.nav-links a,.nav-actions .btn,.sub,.ctas .btn{will-change:transform,opacity}
+@keyframes lineRise{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes subIn{from{opacity:0;transform:translateY(calc(14 * var(--u)));filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes subInFlat{from{opacity:0;transform:translateY(calc(12 * var(--u)))}to{opacity:1;transform:none}}
+@keyframes pillIn{from{opacity:0;transform:translateY(calc(8 * var(--u))) scale(.972)}to{opacity:1;transform:none}}
+@keyframes liftIn{from{opacity:0;transform:translateY(calc(9 * var(--u)))}to{opacity:1;transform:none}}
+@keyframes logoIn{from{opacity:0;transform:translateY(calc(-2.4 * var(--u))) translateY(calc(9 * var(--u)))}
+  to{opacity:1;transform:translateY(calc(-2.4 * var(--u)))}}
+html.anim.go .ln-i{animation:lineRise 1.05s var(--e-reveal) both}
+html.anim.go .ln:nth-child(1) .ln-i{animation-delay:.12s}
+html.anim.go .ln:nth-child(2) .ln-i{animation-delay:.22s}
+html.anim.go .logo{animation:logoIn .62s var(--e-soft) .46s both}
+html.anim.go .nav-links a{animation:liftIn .55s var(--e-soft) both}
+html.anim.go .nav-links a:nth-child(1){animation-delay:.540s}
+html.anim.go .nav-links a:nth-child(2){animation-delay:.585s}
+html.anim.go .nav-links a:nth-child(3){animation-delay:.630s}
+html.anim.go .nav-links a:nth-child(4){animation-delay:.675s}
+html.anim.go .nav-links a:nth-child(5){animation-delay:.720s}
+html.anim.go .sub{animation:subIn .85s var(--e-reveal) .58s both}
+html.anim.go .btn-login{animation:pillIn .55s var(--e-soft) .68s both}
+html.anim.go .burger{animation:pillIn .55s var(--e-soft) .68s both}
+html.anim.go .btn-nav-start{animation:pillIn .55s var(--e-soft) .73s both}
+html.anim.go .ctas .btn-primary{animation:pillIn .70s var(--e-reveal) .90s both}
+html.anim.go .ctas .btn-ghost{animation:pillIn .70s var(--e-reveal) .97s both}
+
+/* ---------- tablet ---------- */
+@media (max-width:1160px){
+  :root{--u:min(max(0.9px,min(calc(100vw / 1280),calc(100dvh / 760))),calc((100vw - 72px) / 575),calc(100dvh / 620))}
+  .nav{height:max(58px,calc(67 * var(--u)));padding-left:max(24px,calc(28 * var(--u)));padding-right:max(24px,calc(28 * var(--u)))}
+  .nav-links,.nav-actions{display:none}
+  .burger{display:flex;width:max(46px,calc(48 * var(--u)));height:max(38px,calc(34 * var(--u)));border-radius:999px}
+  .hero-inner{max-width:calc(100vw - 48px)}
+  .sub{font-size:max(16px,calc(17.4 * var(--u)));line-height:max(25px,calc(27 * var(--u)))}
+  .ctas{margin-top:max(26px,calc(21.8 * var(--u)));gap:max(10px,calc(7 * var(--u)))}
+  .btn-lg{height:max(44px,calc(39 * var(--u)));border-radius:max(22px,calc(19.5 * var(--u)));
+    font-size:max(15px,calc(13.3 * var(--u)));gap:max(10px,calc(9 * var(--u)))}
+  .btn-primary{padding-left:max(21px,calc(18.2 * var(--u)));padding-right:max(22px,calc(19.2 * var(--u)))}
+  .btn-ghost{padding-left:max(20px,calc(17.4 * var(--u)));padding-right:max(21px,calc(18.4 * var(--u)))}
+  .btn-lg .arw{width:max(14px,calc(13 * var(--u)));height:max(11.6px,calc(10.8 * var(--u)))}
+  .menu{position:absolute;top:calc(max(58px,calc(67 * var(--u))) - 6px);right:max(24px,calc(28 * var(--u)));
+    width:min(320px,calc(100vw - 48px));background:rgba(10,10,12,.86);-webkit-backdrop-filter:blur(22px);
+    backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:10px 8px 12px;
+    flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.55);transform-origin:top right;z-index:5}
+  .menu.open{display:flex;animation:menuIn .18s ease both}
+  .menu a{color:var(--ink-muted);text-decoration:none;font-size:15px;font-weight:500;letter-spacing:calc(-0.15 * var(--u));
+    padding:12px 14px;border-radius:12px;transition:background .18s ease,color .18s ease}
+  .menu a:hover{background:rgba(255,255,255,.06);color:#fff}
+  .menu .divider{height:1px;background:rgba(255,255,255,.08);margin:8px 14px}
+  .menu .m-start{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--white-btn);
+    color:var(--btn-ink);margin:6px 8px 0;padding:13px 16px;border-radius:14px;font-weight:600}
+  .menu .m-start:hover{background:#fff;color:var(--btn-ink)}
+  .menu .m-start .arw{width:13px;height:11px}
+}
+/* ---------- mobile ---------- */
+@media (max-width:552px){
+  :root{--u:1px}
+  .nav{height:56px;padding:0 20px}
+  .logo{font-size:22px;letter-spacing:-.4px}
+  .burger{width:42px;height:36px}
+  .hero-inner{position:absolute;left:0;right:0;top:50%;width:auto;max-width:none;padding:0 20px;transform:translateY(-47%)}
+  h1{font-size:min(74px,calc((100vw - 44px) / 6.9));line-height:1.04;letter-spacing:-.02em}
+  .sub{margin-top:16px;font-size:clamp(15.5px,4vw,16.5px);line-height:1.6;letter-spacing:0;max-width:42ch;margin-left:auto;margin-right:auto}
+  .sub br{display:none}
+  .ctas{margin-top:24px;gap:10px;transform:none;flex-wrap:wrap}
+  .btn-lg{height:46px;border-radius:23px;font-size:15px;gap:9px}
+  .btn-primary{padding-left:20px;padding-right:21px}
+  .btn-ghost{padding-left:19px;padding-right:20px}
+  .btn-lg .arw{width:13px;height:11px}
+  .menu{top:50px;left:16px;right:16px;width:auto}
+  .menu a{font-size:15.5px;padding:13px 14px}
+  .menu .m-start{padding:14px 16px}
+  html.anim.go .sub{animation-name:subInFlat}
+  html.anim.go .ln-i{animation-duration:.92s}
+  html.anim.go .ctas .btn-primary{animation-delay:.84s}
+  html.anim.go .ctas .btn-ghost{animation-delay:.90s}
+}
+@media (max-width:353px){
+  .ctas{flex-direction:column;align-items:center}
+  .btn-lg{width:min(100%,272px)}
+}
+@media (max-width:552px) and (max-height:460px){
+  h1{font-size:min(44px,calc((100vw - 44px) / 6.9))}
+  .sub{margin-top:12px;font-size:15px;line-height:1.5}
+  .ctas{margin-top:18px}
+  .hero-inner{transform:translateY(-44%)}
+}
+@media (prefers-reduced-motion:reduce){
+  html.anim .ln{overflow:visible;padding-top:0;margin-top:0}
+  html.anim .ln-i{transform:none}
+  html.anim .logo,html.anim .nav-links a,html.anim .nav-actions .btn,
+  html.anim .burger,html.anim .sub,html.anim .ctas .btn{opacity:1}
+  *{transition:none!important;animation:none!important}
+}
+
+.gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.bg.no-video .bg-video{display:none}
+</style>
+<script>
+(function(){
+if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+var d=document.documentElement,started=false,bootT,safeT;d.classList.add('anim');
+function clean(){if(!d.classList.contains('anim')&&!d.classList.contains('go'))return;clearTimeout(safeT);removeEventListener('animationend',onEnd,true);d.classList.remove('anim','go')}
+function onEnd(e){if(e.animationName==='pillIn'&&e.target.classList.contains('btn-ghost'))clean()}
+function start(){if(started)return;started=true;clearTimeout(bootT);addEventListener('animationend',onEnd,true);safeT=setTimeout(clean,2600);d.classList.add('go')}
+function boot(){bootT=setTimeout(start,900);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(start,start);else start()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+</head>
+<body>
+<main class="hero">
+<div class="bg" role="img" aria-label="Stylised globe of Earth rendered as a purple dot matrix against a starfield, slowly rotating">
+<canvas class="gl" id="glb" aria-hidden="true"></canvas>
+<video class="bg-video is-active" id="bgVideoA" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/82e7eb75-c65f-490a-99b5-f3d1cad54200.webp"><source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260912_104036_bd6924f6-3c8e-417e-8465-6d03c8c2e9e6.mp4" type="video/mp4"></video>
+<video class="bg-video" id="bgVideoB" muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/82e7eb75-c65f-490a-99b5-f3d1cad54200.webp"><source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260912_104036_bd6924f6-3c8e-417e-8465-6d03c8c2e9e6.mp4" type="video/mp4"></video>
+</div>
+<header class="nav">
+<a class="logo" href="#">Spam Shield</a>
+<nav class="nav-links" aria-label="Primary"><a href="/features">Features</a><a href="/detection">Detection</a><a href="/how-it-works">How it works</a><a href="/security">Security</a></nav>
+<div class="nav-actions"><a class="btn btn-nav-start" href="/login">Get Started <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+<button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span></button>
+</header>
+<nav class="menu" id="menu" aria-label="Mobile"><a href="/features">Features</a><a href="/detection">Detection</a><a href="/how-it-works">How it works</a><a href="/security">Security</a><div class="divider"></div><a class="m-start" href="/login">Get Started <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg></a></nav>
+<div class="hero-inner">
+<h1><span class="ln"><span class="ln-i">Threat-proof</span></span> <span class="ln"><span class="ln-i">messaging</span></span></h1>
+<p class="sub">Paste an SMS or email and get an instant Spam or Safe verdict<br>
+from a trained machine-learning model,<br>
+with a saved history and alerts for every scan.</p>
+<div class="ctas"><a class="btn btn-lg btn-primary" href="/login">Get Started <svg class="arw" viewBox="0 0 12 10" fill="none" aria-hidden="true"><path d="M0.8 5h10M7.1 1.4 10.9 5l-3.8 3.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+</div>
+</main>
+<script>
+(function(){
+var b=document.getElementById('burger'),m=document.getElementById('menu');if(!b||!m)return;
+function set(o){m.classList.toggle('open',o);b.setAttribute('aria-expanded',o?'true':'false');b.setAttribute('aria-label',o?'Close menu':'Open menu')}
+b.addEventListener('click',function(e){e.stopPropagation();set(!m.classList.contains('open'))});
+m.addEventListener('click',function(e){if(e.target.closest('a'))set(false)});
+document.addEventListener('click',function(e){if(m.classList.contains('open')&&!m.contains(e.target)&&!b.contains(e.target))set(false)});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&m.classList.contains('open')){set(false);b.focus()}});
+})();
+</script>
+<script>
+(function(){
+var A=document.getElementById('bgVideoA'),B=document.getElementById('bgVideoB');if(!A||!B)return;
+function play(v){var p=v.play();if(p&&p.catch)p.catch(function(){})}
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){A.removeAttribute('autoplay');A.pause();B.pause();try{A.currentTime=0}catch(e){}return}
+var bg=A.parentNode,failT=setTimeout(function(){if(A.paused||A.readyState<3)bg.classList.add('no-video')},3500);A.addEventListener('error',function(){bg.classList.add('no-video')},true);A.addEventListener('playing',function(){bg.classList.remove('no-video')});
+var FADE=0.9,cur=A,nxt=B,swapping=false;play(A);
+function tick(){if(swapping||!cur.duration)return;if(cur.duration-cur.currentTime>FADE)return;swapping=true;var out=cur;nxt.currentTime=0;play(nxt);nxt.classList.add('is-active');out.classList.remove('is-active');cur=nxt;nxt=out;setTimeout(function(){out.pause();out.currentTime=0;swapping=false},FADE*1000+100)}
+A.addEventListener('timeupdate',tick);B.addEventListener('timeupdate',tick);
+})();
+</script>
+<script>
+// Procedural dot-matrix globe + starfield (canvas 2D). Used as the always-available
+// background layer under the looping video. Land mask: 180x90 grid, 1 bit per cell.
+const LAND = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAfvAAAAAAAAAAAAAAAAAAAAAAAAx37///+AAAAAGoABAAAAAAAAAAAAAIe8P///wAA8AAAAAA0AAAAAAAAAAAwADw////4AAIAAAAAAHAAAAAAAAAAALivwAf//wAAAAADAAP/wAHIAAAAAADsj38AH/+gAAAAAEAH///OAAAAgBgAAfw3/gB/+gAAAgAMHe///+/9gBAP/7/nbdrwD/+AAAH/Ag7H////////8H//////g8H/gAAAf/6//f////////Mf/////9H4D4A+AA+ev///////////AP/////4A0B4AAAD5/////////////Af1////gHgA4AAAP5///////////LwAHgD///gH0AAAAAG4/////////+AMAABAC///4D+AAAAGCx/////////4A4AAAAB////n/gAAAOCR/////////4A4AAAAAf///3/wAAAbH//////////9AgAAAAAP/////gAAADf//////////9AAAAAAAF////0YAAAB///////////8AAAAAAAD////8EAAAB///v///////5AAAAAAAD////+AAAAB/f5f///////wAAAAAAAD////gAAAAfxnwP///////jgAAAAAAD///+AAAAAPCb3///////+AAAAAAAAD///8AAAAAfCJf//////+ECAAAAAAAB///8AAAAAGDRf///////mMAAAAAAAA///8AAAAAH+Ai///////E8AAAAAAAAf//wAAAAAP/AA///////BgAAAAAAAAP//gAAAAAf/73///////gAAAAAAAAAD/AQAAAAAf//9/f/////gAAAAAAAAAF+AQAAAAB///+/n/////AAAAAAAAAAC+AAAAAAB///+fwH///+AAAAAAAAAAAeAwAAAAD////f/D///8gAAAAAAAAAAeGEAAAAD////v+B/j/AAAAAAAAAAAAPMAwAAAD////n+AfB+gAAAAAAAAAAAD8AAAAAD////34AeBfAgAAAAAAAAAAAPAAAAAH////3gAcAfAgAAAAAAAAAAADAAAAAD////6AAcAfgwAAAAAAAAAAABBwAAAD////8wAMATAIAAAAAAAAAAAAr/AAAB/////gAIASAAAAAAAAAAAAAAH/gAAA/////gACAAAIAAAAAAAAAAAAH/8AAAYH///AAAAsGAAAAAAAAAAAAAH/+AAAAB//+AAAAUOAAAAAAAAAAAAAP/+AAAAB//8AAAAc+gAAAAAAAAAAAAP//gAAAD//4AAAAMeBgAAAAAAAAAAAP//8AAAB//wAAAAGdCuAAAAAAAAAAAf///AAAA//wAAAACAAHgAAAAAAAAAAP///gAAA//wAAAAB4AHggAAAAAAAAAH///AAAAf/wAAAAACIDQIAAAAAAAAAH//+AAAAf/wAAAAAAAAAAAAAAAAAAAD//+AAAA//wgAAAAABxAAAAAAAAAAAD//8AAAA//wgAAAAAHxgBAAAAAAAAAA//8AAAA//zgAAAAAf/gAAAAAAAAAAAf/8AAAA//DgAAAAAf/gAAAAAAAAAAAf/8AAAAf/DAAAAAD//4CAAAAAAAAAAf/wAAAAf/DAAAAAH//4AAAAAAAAAAAf/AAAAAf+DAAAAAH//8AAAAAAAAAAAf/AAAAAP8AAAAAAH//+AAAAAAAAAAA/+AAAAAP8AAAAAAH//+AAAAAAAAAAA/8AAAAAH4AAAAAAD//+AAAAAAAAAAA/8AAAAAHwAAAAAADwf8AAAAAAAAAAA/gAAAAAAAAAAAAACAP4AAAAAAAAAAB/wAAAAAAAAAAAAAAAD4AEAAAAAAAAB+AAAAAAAAAAAAAAAAAAAGAAAAAAAAB6AAAAAAAAAAAAAAAAAwAMAAAAAAAAA8AAAAAAAAAAAAAAAAAQAYAAAAAAAAB4AAAAAAAAAAAAAAAAAAAwAAAAAAAAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAACAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAA8AAf/8d/AAAAAAAAAAAAkAAAAAAACP/+H//////AAAAAAAAAAA+AAAAIf////+////////AAAAAAAOMKPAAAB///////////////gAAAH/8D//8AAAH//////////////4AAAF/////8AAAP///////////////4AAIf/////gwBwf///////////////4AAAH//////AAD////////////////wAAA///////+f//////////////////A/wH///////////////////////////////////////////////////////////////////////////////////////";
+
+function startGlobe(cv, still) {
+  const ctx = cv.getContext('2d');
+  if (!ctx) return () => {};
+  const W = 180, H = 90, land = new Uint8Array(W * H);
+  const bin = atob(LAND);
+  for (let i = 0; i < W * H; i++) land[i] = (bin.charCodeAt(i >> 3) >> (7 - (i & 7))) & 1;
+  const isLand = (lat, lon) => {
+    let c = Math.floor(((lon + 180) / 360) * W) % W; if (c < 0) c += W;
+    const r = Math.max(0, Math.min(H - 1, Math.floor(((90 - lat) / 180) * H)));
+    return land[r * W + c] === 1;
+  };
+  const D = Math.PI / 180, STEP = 2.7, pts = [];
+  let ring = 0;
+  for (let lat = -87; lat <= 87; lat += STEP, ring++) {
+    const cl = Math.cos(lat * D), n = Math.max(1, Math.round((360 * cl) / STEP));
+    for (let i = 0; i < n; i++) {
+      const lon = -180 + ((i + (ring % 2) * 0.5) * 360) / n;
+      pts.push({ lon: lon * D, sl: Math.sin(lat * D), cl, land: isLand(lat, lon) });
+    }
+  }
+  const stars = Array.from({ length: 170 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.1 + 0.25, p: Math.random() * 6.28, s: 0.6 + Math.random() * 1.6 }));
+  const CITIES = [[19, 72.8], [51.5, -0.1], [40.7, -74], [35.7, 139.7], [-33.9, 151.2], [-33.9, 18.4], [1.3, 103.8], [25.2, 55.3]];
+  const ARCS = [[0, 1], [2, 3], [4, 5], [6, 7], [1, 2]];
+  let w = 0, h = 0, dpr = 1, R = 0, cx = 0, cy = 0, raf = 0;
+  const TILT = 0.42, t0 = performance.now();
+
+  const resize = () => {
+    w = cv.clientWidth || 1; h = cv.clientHeight || 1;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    R = Math.min(w * 0.29, h * 0.47); cx = w * 0.5; cy = h * 0.66;
+  };
+  const proj = (lon, sl, cl, rot, k) => {
+    const l = lon - rot, x0 = cl * Math.sin(l), z0 = cl * Math.cos(l);
+    const ct = Math.cos(TILT), st = Math.sin(TILT);
+    const y = sl * ct - z0 * st, z = sl * st + z0 * ct;
+    return [cx + x0 * R * k, cy - y * R * k, z];
+  };
+  const ll = (la, lo) => [Math.sin(la * D), Math.cos(la * D), lo * D];
+
+  const frame = (now) => {
+    const t = still ? 2.2 : (now - t0) / 1000, rot = t * 0.1;
+    ctx.clearRect(0, 0, w, h);
+    // stars
+    for (const s of stars) {
+      const a = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * s.s + s.p));
+      ctx.fillStyle = 'rgba(220,210,255,' + a.toFixed(3) + ')';
+      ctx.fillRect(s.x * w, s.y * h, s.r, s.r);
+    }
+    // rim glow (breathing)
+    const br = 0.5 + 0.5 * Math.sin(t * 1.1);
+    let g = ctx.createRadialGradient(cx, cy, R * 0.9, cx, cy, R * (1.32 + 0.04 * br));
+    g.addColorStop(0, 'rgba(139,92,246,' + (0.32 + 0.12 * br).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(139,92,246,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 1.34, 0, 6.2832); ctx.fill();
+    // body
+    g = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1, cx, cy, R);
+    g.addColorStop(0, '#150a2e'); g.addColorStop(1, '#05030c');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832); ctx.fill();
+    // lattice (wireframe)
+    ctx.lineWidth = 0.7; ctx.strokeStyle = 'rgba(167,139,250,0.14)';
+    ctx.beginPath();
+    for (let la = -60; la <= 60; la += 30) {
+      let pen = false;
+      for (let lo = -180; lo <= 180; lo += 6) {
+        const p = proj(lo * D, Math.sin(la * D), Math.cos(la * D), rot, 1);
+        if (p[2] > 0) { pen ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); pen = true; } else pen = false;
+      }
+    }
+    for (let lo = -180; lo < 180; lo += 30) {
+      let pen = false;
+      for (let la = -84; la <= 84; la += 6) {
+        const p = proj(lo * D, Math.sin(la * D), Math.cos(la * D), rot, 1);
+        if (p[2] > 0) { pen ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); pen = true; } else pen = false;
+      }
+    }
+    ctx.stroke();
+    // dots, bucketed by alpha so we fill few paths
+    const rr = Math.max(0.8, R / 230);
+    const B = [new Path2D(), new Path2D(), new Path2D(), new Path2D()], O = [new Path2D(), new Path2D()];
+    for (const p of pts) {
+      const q = proj(p.lon, p.sl, p.cl, rot, 1);
+      if (q[2] <= 0) continue;
+      if (p.land) {
+        const b = Math.min(3, Math.floor(q[2] * 4)), r = rr * (0.7 + 0.8 * q[2]);
+        B[b].moveTo(q[0] + r, q[1]); B[b].arc(q[0], q[1], r, 0, 6.2832);
+      } else {
+        const b = q[2] > 0.5 ? 1 : 0, r = rr * 0.42;
+        O[b].moveTo(q[0] + r, q[1]); O[b].arc(q[0], q[1], r, 0, 6.2832);
+      }
+    }
+    ctx.fillStyle = 'rgba(124,92,214,0.22)'; ctx.fill(O[0]);
+    ctx.fillStyle = 'rgba(124,92,214,0.4)'; ctx.fill(O[1]);
+    const LA = [0.2, 0.34, 0.55, 0.78];
+    for (let i = 0; i < 4; i++) { ctx.fillStyle = 'rgba(176,148,255,' + LA[i] + ')'; ctx.fill(B[i]); }
+    // light arcs between cities (pulsing head)
+    ARCS.forEach((a, k) => {
+      const A = ll(CITIES[a[0]][0], CITIES[a[0]][1]), Bc = ll(CITIES[a[1]][0], CITIES[a[1]][1]);
+      const v = (la, lo) => [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)];
+      const pa = v(Math.asin(A[0]), A[2]), pb = v(Math.asin(Bc[0]), Bc[2]);
+      const om = Math.acos(Math.max(-1, Math.min(1, pa[0] * pb[0] + pa[1] * pb[1] + pa[2] * pb[2]))) || 1e-3;
+      const head = (t * 0.22 + k * 0.21) % 1.25;
+      ctx.lineWidth = 1.4;
+      for (let s = 0; s < 24; s++) {
+        const u = s / 24; if (u > head || u < head - 0.35) continue;
+        const f = (u - (head - 0.35)) / 0.35;
+        const w1 = Math.sin((1 - u) * om) / Math.sin(om), w2 = Math.sin(u * om) / Math.sin(om);
+        const lift = 1 + 0.16 * Math.sin(Math.PI * u);
+        const X = (w1 * pa[0] + w2 * pb[0]) * lift, Y = (w1 * pa[1] + w2 * pb[1]) * lift, Z = (w1 * pa[2] + w2 * pb[2]) * lift;
+        const l = Math.atan2(X, Z) , cl = Math.hypot(X, Z), sl = Y;
+        const p = proj(l, sl, cl, rot, 1);
+        if (p[2] < 0.02) continue;
+        ctx.fillStyle = 'rgba(214,194,255,' + (0.15 + 0.85 * f).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(p[0], p[1], 1 + 1.4 * f, 0, 6.2832); ctx.fill();
+      }
+    });
+    // orbiting satellite on a tilted ring
+    const inc = 0.9, Ro = R * 1.22, ang = t * 0.45;
+    ctx.strokeStyle = 'rgba(167,139,250,0.16)'; ctx.lineWidth = 0.8; ctx.beginPath();
+    for (let a = 0; a <= 6.3; a += 0.1) {
+      const X = Ro * Math.cos(a), Y = Ro * Math.sin(a) * Math.sin(inc) * 0.35, Z = Math.sin(a);
+      if (Z < 0 && Math.hypot(X, Y) < R) continue;
+      a === 0 ? ctx.moveTo(cx + X, cy + Y) : ctx.lineTo(cx + X, cy + Y);
+    }
+    ctx.stroke();
+    const sx = cx + Ro * Math.cos(ang), sy = cy + Ro * Math.sin(ang) * Math.sin(inc) * 0.35, sz = Math.sin(ang);
+    if (!(sz < 0 && Math.hypot(sx - cx, sy - cy) < R)) {
+      g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 12);
+      g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(1, 'rgba(167,139,250,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, 12, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.fillRect(sx - 1.5, sy - 1.5, 3, 3);
+    }
+    // soft scrim keeps the headline readable over the dots
+    g = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w * 0.34, 320));
+    g.addColorStop(0, 'rgba(0,0,0,0.5)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    if (!still) raf = requestAnimationFrame(frame);
+  };
+  resize();
+  const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => { resize(); if (still) frame(performance.now()); }) : null;
+  if (ro) ro.observe(cv); else window.addEventListener('resize', resize);
+  raf = requestAnimationFrame(frame);
+  return () => { cancelAnimationFrame(raf); if (ro) ro.disconnect(); else window.removeEventListener('resize', resize); };
+}
+
+(function(){var c=document.getElementById("glb");if(c)startGlobe(c,matchMedia("(prefers-reduced-motion: reduce)").matches)})();
+</script>
+</body>
+</html>
